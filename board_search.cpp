@@ -2,9 +2,11 @@
 #include<utility>
 #include<cstdlib>
 
-long long freeboard(long long board_number,std::vector<std::vector<long long>>grid){  // To find lowest board number if current board is already filong longed
+// To find lowest board number if current board is already filong longed
+long long freeboard(long long board_number,std::vector<std::vector<long long>> &grid){  
 	long long ix=(board_number/3)*3;
 	long long iy=(board_number%3)*3;
+
 	for(long long i=ix;i<ix+3;i++){
 		for(long long j=iy;j<iy+3;i++){
 			if(grid[i][j]==0)return board_number;
@@ -23,7 +25,7 @@ long long freeboard(long long board_number,std::vector<std::vector<long long>>gr
 }
 
 // find next active board
-std::pair<long long, long long> findnext(long long px,long long py,std::vector<std::vector<long long>>grid){ 
+std::pair<long long, long long> findnext(long long px,long long py,std::vector<std::vector<long long>> &grid){ 
 	long long board_number=px/3;board_number*=3;
 	board_number+=py/3;
 	long long ix=(board_number/3)*3;
@@ -34,4 +36,19 @@ std::pair<long long, long long> findnext(long long px,long long py,std::vector<s
 	long long startrow=(local_board/3)*3;
 	long long startcol=(local_board%3)*3;
 	return {startrow,startcol};
+}
+
+bool is_move_possible(std::vector<std::vector<long long>> &grid){
+    int n = (int)grid.size(), m = (int)grid[0].size();
+	for(int i=0;i<n;i++)
+	{
+		for(int j=0;j<m;j++)
+		{
+			if(grid[i][j]==0)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }

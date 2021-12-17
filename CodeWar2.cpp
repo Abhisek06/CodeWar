@@ -1,4 +1,5 @@
 #include<bits/stdc++.h>
+#include"code_warriors.h"
 #pragma GCC optimize("O3")
 #pragma GCC target("avx2")
 #define boost std::ios_base::sync_with_stdio(false);std::cin.tie(NULL);std::cout.tie(NULL);
@@ -15,23 +16,13 @@ long long opp;
 long long mine;
 long long dx[8]={1,-1,0,0,1,1,-1,-1};
 long long dy[8]={0,0,1,-1,1,-1,1,-1};
+
 bool valid(long long x,long long y){
 	if(x<0 || x>=n || y<0 || y>=m)return false;
 	return true;
 }
 
-long long freeboard(long long board_number,std::vector<std::vector<long long>>grid);
-std::pair<long long, long long> findnext(long long px,long long py,std::vector<std::vector<long long>>grid);
-
-bool possible(std::vector<std::vector<long long> >grid){
-	for(long long i=0;i<n;i++){
-		for(long long j=0;j<m;j++){
-			if(grid[i][j]==0)return true;
-		}
-	}
-	return false;
-}
-long long evaluate(std::vector<std::vector<long long> >grid,long long depth){
+long long evaluate(std::vector<std::vector<long long>> &grid,long long depth){
 	for(long long i=0;i<n;i++){
 		for(long long j=0;j<m;j++){
 			if(grid[i][j]!=0){
@@ -51,12 +42,16 @@ long long evaluate(std::vector<std::vector<long long> >grid,long long depth){
 }
 
 long long minimax(std::vector<std::vector<long long> >grid,long long depth,bool flag,long long px,long long py,long long alpha,long long beta){
-	if(depth>3)return 0;
+	if(depth>3)
+	{
+		return heuristic(grid, depth, flag, px, py, alpha, beta);
+	}
+
 	long long curr=evaluate(grid,depth);
 	if(curr!=0)return curr;
 	std::pair<long long, long long> p=findnext(px,py,grid);
 	if(p.first==-1 || p.second==-1)return 0;
-	if(!possible(grid))return 0;
+	if(!is_move_possible(grid))return 0;
 	long long startrow=p.first,startcol=p.second;
 	if(flag){
 		long long maxi=-inf;
@@ -139,6 +134,7 @@ void solve(){
 	std::cout<<ans.x<<" "<<ans.y<<endl;
     return;
 }
+
 int main()
 {
     boost
