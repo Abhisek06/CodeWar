@@ -1,27 +1,26 @@
 #include<bits/stdc++.h>
 #include<vector>
 
-extern int opp, mine;
-extern long long n, m;
+extern char opp, mine;
+extern int n, m;
 
 // FOR TESTING ONLY
 // int opp, mine;
 // long long n, m;
 
-std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, int px, int py)
+std::vector<int> search(std::vector<std::vector<char>> &grid, bool flag, int px, int py)
 {
     std::vector<int> result(4);
-    int mine_player = (flag ? mine : opp);
-    int opp_player = (flag ? opp: mine);
+    char mine_player = (flag ? mine : opp);
+    char opp_player = (flag ? opp: mine);
 
     for(int row = px; row < px + 3; row++)
     {
-
         int free_inside = 0, free_outside = 0, mine_cnt = 0, opp_cnt = 0;
 
         for(int j = std::max(0, py - 3); j < std::max(0, py - 3) + 3; j++)
         {
-            if(grid[row][j] == 0)
+            if(grid[row][j] == '0')
             {
                 if(j < py || j >= py + 3) free_outside++;
                 else free_inside++;
@@ -33,7 +32,7 @@ std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, in
         for(int col = std::max(0, py - 3); col < py + 3 && col + 3 < m; col++)
         {
             int j = col + 3;
-            if(grid[row][j] == 0)
+            if(grid[row][j] == '0')
             {
                 if(j < py || j >= py + 3) free_outside++;
                 else free_inside++;
@@ -51,7 +50,7 @@ std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, in
             }
 
             j = col;
-            if(grid[row][j] == 0)
+            if(grid[row][j] == '0')
             {
                 if(j < py || j >= py + 3) free_outside--;
                 else free_inside--;
@@ -76,7 +75,7 @@ std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, in
 
         for(int j = std::max(0, px - 3); j < std::max(0, px - 3) + 3; j++)
         {
-            if(grid[j][col] == 0)
+            if(grid[j][col] == '0')
             {
                 if(j < px || j >= px + 3) free_outside++;
                 else free_inside++;
@@ -88,7 +87,7 @@ std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, in
         for(int row = std::max(0, px - 3); row < px + 3 && row + 3 < n; row++)
         {
             int j = row + 3;
-            if(grid[j][col] == 0)
+            if(grid[j][col] == '0')
             {
                 if(j < px || j >= px + 3) free_outside++;
                 else free_inside++;
@@ -104,7 +103,7 @@ std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, in
             }
 
             j = row;
-            if(grid[j][col] == 0)
+            if(grid[j][col] == '0')
             {
                 if(j < px || j >= px + 3) free_outside--;
                 else free_inside--;
@@ -117,13 +116,13 @@ std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, in
     return result;
 }
 
-long long heuristic(std::vector<std::vector<long long> > grid,long long depth,bool flag,long long px,long long py)
+int heuristic(std::vector<std::vector<char>> &grid,int depth,bool flag,int px,int py)
 {
     std::vector<int> cnt_mine = search(grid, 1, px, py);
     std::vector<int> cnt_opp = search(grid, 0, px, py);
 
-    long long mi_val = -5000 + 5 * depth;
-    long long ma_val = 5000 - 5 * depth;
+    int mi_val = -5000;
+    int ma_val = 5000;
 
     for(int i = 0; i < 3; i++)
     {

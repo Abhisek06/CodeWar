@@ -3,35 +3,34 @@
 #pragma GCC optimize("O3")
 #pragma GCC target("avx2")
 #define boost std::ios_base::sync_with_stdio(false);std::cin.tie(NULL);std::cout.tie(NULL);
-#define inf 1e18
+#define inf 1e9
 #define endl '\n'
-
 struct pos{
-	long long x;long long y;
+	int x;int y;
 };
 
-long long n,m;
+int n,m;
 char curr;
-int opp, mine;
-long long dx[8]={1,-1,0,0,1,1,-1,-1};
-long long dy[8]={0,0,1,-1,1,-1,1,-1};
+char opp, mine;
+int dx[8]={1,-1,0,0,1,1,-1,-1};
+int dy[8]={0,0,1,-1,1,-1,1,-1};
 
-bool valid(long long x,long long y){
+bool valid(int x,int y){
 	if(x<0 || x>=n || y<0 || y>=m)return false;
 	return true;
 }
 
-long long evaluate(std::vector<std::vector<long long>> &grid,long long depth){
-	for(long long i=0;i<n;i++){
-		for(long long j=0;j<m;j++){
-			if(grid[i][j]!=0){
-				long long num=grid[i][j];
-				for(long long k=0;k<8;k++){
+int evaluate(std::vector<std::vector<char>> &grid,int depth){
+	for(int i=0;i<n;i++){
+		for(int j=0;j<m;j++){
+			if(grid[i][j]!='0'){
+				char num=grid[i][j];
+				for(int k=0;k<8;k++){
 					if(valid(i+dx[k],j+dy[k]) and grid[i+dx[k]][j+dy[k]]==num 
 					and valid(i+2*dx[k],j+2*dy[k]) and grid[i+2*dx[k]][j+2*dy[k]]==num
 					and valid(i+3*dx[k],j+3*dy[k]) and grid[i+3*dx[k]][j+3*dy[k]]==num){
-						if(num==mine)return 10000-5*curr;
-						return -10000+5*curr;
+						if(num==mine)return 10000-500*depth;
+						return -10000+500*depth;
 					}
 				}
 			}
@@ -40,34 +39,34 @@ long long evaluate(std::vector<std::vector<long long>> &grid,long long depth){
 	return 0;
 }
 
-long long minimax(std::vector<std::vector<long long> >grid,long long depth,bool flag,long long px,long long py,long long alpha,long long beta){
-	if(depth>2)
+int minimax(std::vector<std::vector<char> >&grid,int depth,bool flag,int px,int py,int alpha,int beta){
+	if(depth>3)
 	{
-		std::pair<long long, long long> p=findnext(px,py,grid);
+		std::pair<int, int> p=findnext(px,py,grid);
 		if(p.first==-1 || p.second==-1)return 0;
 		if(!is_move_possible(grid))return 0;	
 
 		return heuristic(grid, depth, flag, p.first, p.second);
 	}
 
-	long long curr=evaluate(grid,depth);
+	int curr=evaluate(grid,depth);
 	if(curr!=0)return curr;
-	std::pair<long long, long long> p=findnext(px,py,grid);
+	std::pair<int, int> p=findnext(px,py,grid);
 	if(p.first==-1 || p.second==-1)return 0;
 	if(!is_move_possible(grid))return 0;
 
 
-	long long startrow=p.first,startcol=p.second;
+	int startrow=p.first,startcol=p.second;
 	if(flag){
-		long long maxi=-inf;
-		for(long long i=startrow;i<std::min(startrow+3,n);i++){
-			for(long long j=startcol;j<std::min(startcol+3,m);j++){
-				if(grid[i][j]==0){
+		int maxi=-inf;
+		for(int i=startrow;i<std::min(startrow+3,n);i++){
+			for(int j=startcol;j<std::min(startcol+3,m);j++){
+				if(grid[i][j]=='0'){
 					grid[i][j]=mine;
-					long long val=minimax(grid,depth+1,!flag,i,j,alpha,beta);
+					int val=minimax(grid,depth+1,!flag,i,j,alpha,beta);
 					maxi=std::max(maxi,val);
 					alpha=std::max(alpha,maxi);
-					grid[i][j]=0;
+					grid[i][j]='0';
 				}
 				if(beta<=alpha)break;
 			}
@@ -76,14 +75,14 @@ long long minimax(std::vector<std::vector<long long> >grid,long long depth,bool 
 		return maxi;
 	}
 
-	long long mini=inf;
-	for(long long i=startrow;i<startrow+3;i++){
-		for(long long j=startcol;j<startcol+3;j++){
-			if(grid[i][j]==0){
+	int mini=inf;
+	for(int i=startrow;i<startrow+3;i++){
+		for(int j=startcol;j<startcol+3;j++){
+			if(grid[i][j]=='0'){
 				grid[i][j]=opp;
-				long long val=minimax(grid,depth+1,!flag,i,j,alpha,beta);
+				int val=minimax(grid,depth+1,!flag,i,j,alpha,beta);
 				mini=std::min(mini,val);
-				grid[i][j]=0;
+				grid[i][j]='0';
 				beta=std::min(beta,mini);
 			}
 			if(beta<=alpha)break;
@@ -93,15 +92,15 @@ long long minimax(std::vector<std::vector<long long> >grid,long long depth,bool 
 	return mini;
 }
 
-pos findbest(std::vector<std::vector<long long> >grid,long long startrow,long long startcol){ 
+pos findbest(std::vector<std::vector<char> >&grid,int startrow,int startcol){ 
 	pos ans={-1,-1};
-	long long maxi=-inf;
-	for(long long i=startrow;i<std::min(startrow+3,n);i++){
-		for(long long j=startcol;j<std::min(startcol+3,m);j++){
-			if(grid[i][j]==0){
+	int maxi=-inf;
+	for(int i=startrow;i<std::min(startrow+3,n);i++){
+		for(int j=startcol;j<std::min(startcol+3,m);j++){
+			if(grid[i][j]=='0'){
 				grid[i][j]=mine;
-				long long curr=minimax(grid,0,false,i,j,-inf,inf);
-				grid[i][j]=0;
+				int curr=minimax(grid,0,false,i,j,-inf,inf);
+				grid[i][j]='0';
 				if(curr>maxi){
 					maxi=curr;
 					ans.x=i;
@@ -113,26 +112,45 @@ pos findbest(std::vector<std::vector<long long> >grid,long long startrow,long lo
 	return ans;
 }
 void solve(){
-	long long k;
+	int k;
 	std::cin>>k;
 	std::cin>>n>>m;
-	std::vector<std::vector<long long>>grid(n,std::vector<long long>(m));
+	std::vector<std::vector<char>>grid(n,std::vector<char>(m));
 
-	for(long long i=0;i<n;i++){
-		for(long long j=0;j<m;j++){
-			std::cin>>grid[i][j];
+	for(int i=0;i<n;i++){
+		for(int j=0;j<m;j++){
+			int x;
+			std::cin>>x;
+			grid[i][j] = x + '0';
 		}
 	}
-	long long px,py;
-	std::cin>>opp>>px>>py;
-	mine=(opp==2)?1:2;
-	long long startrow,startcol;
+
+	// for(int i =0 ;i < n; i++)
+	// {
+	// 	for(int j = 0; j < m; j++)
+	// 	{
+	// 		std::cout<<(grid[i][j])<<" ";
+		
+	// 	}
+	// 	std::cout<<"\n";
+	// }
+
+	// return;
+
+	int px,py;
+	int x;
+	std::cin>>x;
+	opp = x + '0';
+
+	std::cin>>px>>py;
+	mine=(opp=='2')?'1':'2';
+	int startrow,startcol;
 	if(px<0 || py<0){
 		startrow=3;
 		startcol=3;
 	}
 	else{
-		std::pair<long long, long long> p=findnext(px,py,grid);
+		std::pair<int, int> p=findnext(px,py,grid);
 		startrow=p.first,startcol=p.second;
 	}
 	pos ans=findbest(grid,startrow,startcol);
