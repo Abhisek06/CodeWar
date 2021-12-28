@@ -69,10 +69,39 @@ std::vector<std::vector<std::pair<int, int>>> search(std::vector<std::vector<lon
     return result;
 }
 
-long long heuristic(std::vector<std::vector<long long> >grid,long long depth,bool flag,long long px,long long py)
+long long heuristic(std::vector<std::vector<long long> > grid,long long depth,bool flag,long long px,long long py)
 {
     /* No requirement of positions!!!!!!!!!!!!*/
-    search(grid, false, 0, 0);
+    std::vector<std::vector<std::pair<int, int>>> val = search(grid, true, px, py);
+    std::vector<int> cnt_mine(4);
+    for(int i = 0; i < 4; i++) cnt_mine[i] += val[i].size();
+
+    val = search(grid, false, px, py);
+    std::vector<int> cnt_opp(4);
+    for(int i = 0; i < 4; i++) cnt_opp[i] += val[i].size();
+
+    long long mi_val = -5000 + 5 * depth;
+    long long ma_val = 5000 - 5 * depth;
+
+    for(int i = 0; i < 4; i++)
+    {
+        if(cnt_mine[i] || cnt_opp[i])
+        {
+            if(flag)
+            {
+                // maximizing node
+                if(cnt_mine[i] > cnt_opp[i]) return ma_val;
+                else return mi_val;
+            }
+            else
+            {
+                // minimizing node
+                if(cnt_mine[i] > cnt_opp[i]) return mi_val;
+                else return ma_val;
+            }
+        }
+    }
+
     return 0;
 }
 

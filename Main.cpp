@@ -30,8 +30,8 @@ long long evaluate(std::vector<std::vector<long long>> &grid,long long depth){
 					if(valid(i+dx[k],j+dy[k]) and grid[i+dx[k]][j+dy[k]]==num 
 					and valid(i+2*dx[k],j+2*dy[k]) and grid[i+2*dx[k]][j+2*dy[k]]==num
 					and valid(i+3*dx[k],j+3*dy[k]) and grid[i+3*dx[k]][j+3*dy[k]]==num){
-						if(num==mine)return 100-5*curr;
-						return -100+5*curr;
+						if(num==mine)return 10000-5*curr;
+						return -10000+5*curr;
 					}
 				}
 			}
@@ -41,9 +41,13 @@ long long evaluate(std::vector<std::vector<long long>> &grid,long long depth){
 }
 
 long long minimax(std::vector<std::vector<long long> >grid,long long depth,bool flag,long long px,long long py,long long alpha,long long beta){
-	if(depth>3)
+	if(depth>2)
 	{
-		return heuristic(grid, depth, flag, px, py);
+		std::pair<long long, long long> p=findnext(px,py,grid);
+		if(p.first==-1 || p.second==-1)return 0;
+		if(!is_move_possible(grid))return 0;	
+
+		return heuristic(grid, depth, flag, p.first, p.second);
 	}
 
 	long long curr=evaluate(grid,depth);
