@@ -8,61 +8,109 @@ extern long long n, m;
 // int opp, mine;
 // long long n, m;
 
-std::vector<std::vector<std::pair<int, int>>> search(std::vector<std::vector<long long>> &grid, bool flag, int px, int py)
+std::vector<int> search(std::vector<std::vector<long long>> &grid, bool flag, int px, int py)
 {
-    std::vector<std::vector<std::pair<int, int>>> result(4);
-    int cur_player = (flag ? mine : opp);
+    std::vector<int> result(4);
+    int mine_player = (flag ? mine : opp);
     int opp_player = (flag ? opp: mine);
 
     for(int row = px; row < px + 3; row++)
     {
-        for(int col = py; col < py + 3; col++)
+
+        int free_inside = 0, free_outside = 0, mine_cnt = 0, opp_cnt = 0;
+
+        for(int j = std::max(0, py - 3); j < std::max(0, py - 3) + 3; j++)
         {
-            if(grid[row][col] == 0)
+            if(grid[row][j] == 0)
             {
-                bool first_check = false;
-                // check whether possible or not
-                // check vertically
-                for(int first_row = std::max(0, row - 3); first_row <= row && first_row + 3 < n; first_row++)
-                {
-                    bool possible = true;
-                    int spaces = 0;
-                    for(int it = first_row; it <= first_row + 3; it++)
-                    {
-                        if(grid[it][col] == opp_player) {possible = false; break;}
-                        spaces += !grid[it][col];
-                    }
-
-                    if(possible)
-                    {
-                        result[spaces - 1].push_back({row, col});
-                        first_check = true;
-                        break;
-                    }
-                }
-
-                /* Should I remove it or no?? */
-                if(first_check) break;
-
-                // check horizontally
-                for(int first_col = std::max(0, col - 3); first_col <= col && first_col + 3 < m; first_col++)
-                {
-                    bool possible = true;
-                    int spaces = 0;
-                    for(int it = first_col; it <= first_col + 3; it++)
-                    {
-                        if(grid[row][it] == opp_player) {possible = false; break;}
-                        spaces += !grid[row][it];
-                    }
-
-                    if(possible)
-                    {
-                        result[spaces - 1].push_back({row, col});
-                        break;
-                    }
-                }
-
+                if(j < py || j >= py + 3) free_outside++;
+                else free_inside++;
             }
+            else if(grid[row][j] == mine_player) mine_cnt++;
+            else opp_cnt++;
+        }
+
+        for(int col = std::max(0, py - 3); col < py + 3 && col + 3 < m; col++)
+        {
+            int j = col + 3;
+            if(grid[row][j] == 0)
+            {
+                if(j < py || j >= py + 3) free_outside++;
+                else free_inside++;
+            }
+            else if(grid[row][j] == mine_player) mine_cnt++;
+            else opp_cnt++;
+
+            // std::cout<<row<<", "<<col<<"\n";
+            // std::cout<<free_inside<<" "<<free_outside<<" "<<mine_cnt<<" "<<opp_cnt<<"\n";
+
+            if(free_inside && !opp_cnt)
+            {
+                int tot_free = free_inside + free_outside;
+                result[tot_free - 1]++;
+            }
+
+            j = col;
+            if(grid[row][j] == 0)
+            {
+                if(j < py || j >= py + 3) free_outside--;
+                else free_inside--;
+            }
+            else if(grid[row][j] == mine_player) mine_cnt--;
+            else opp_cnt--;
+        }
+    }
+
+
+    // for(int i = 0; i < n; i++)
+    // {
+    //     std::cout<<i<<": "<<result[i]<<"\n";
+    // }
+
+    // std::cout<<"\n";
+
+
+    for(int col = py; col < py + 3; col++)
+    {
+        int free_inside = 0, free_outside = 0, mine_cnt = 0, opp_cnt = 0;
+
+        for(int j = std::max(0, px - 3); j < std::max(0, px - 3) + 3; j++)
+        {
+            if(grid[j][col] == 0)
+            {
+                if(j < px || j >= px + 3) free_outside++;
+                else free_inside++;
+            }
+            else if(grid[j][col] == mine_player) mine_cnt++;
+            else opp_cnt++;
+        }
+
+        for(int row = std::max(0, px - 3); row < px + 3 && row + 3 < n; row++)
+        {
+            int j = row + 3;
+            if(grid[j][col] == 0)
+            {
+                if(j < px || j >= px + 3) free_outside++;
+                else free_inside++;
+            }
+            else if(grid[j][col] == mine_player) mine_cnt++;
+            else opp_cnt++;
+
+            if(free_inside && !opp_cnt)
+            {
+                int tot_free = free_inside + free_outside;
+                // std::cout<<"col: "<<col<<"\n";
+                result[tot_free - 1]++;
+            }
+
+            j = row;
+            if(grid[j][col] == 0)
+            {
+                if(j < px || j >= px + 3) free_outside--;
+                else free_inside--;
+            }
+            else if(grid[j][col] == mine_player) mine_cnt--;
+            else opp_cnt--;
         }
     }
 
@@ -71,19 +119,13 @@ std::vector<std::vector<std::pair<int, int>>> search(std::vector<std::vector<lon
 
 long long heuristic(std::vector<std::vector<long long> > grid,long long depth,bool flag,long long px,long long py)
 {
-    /* No requirement of positions!!!!!!!!!!!!*/
-    std::vector<std::vector<std::pair<int, int>>> val = search(grid, true, px, py);
-    std::vector<int> cnt_mine(4);
-    for(int i = 0; i < 4; i++) cnt_mine[i] += val[i].size();
-
-    val = search(grid, false, px, py);
-    std::vector<int> cnt_opp(4);
-    for(int i = 0; i < 4; i++) cnt_opp[i] += val[i].size();
+    std::vector<int> cnt_mine = search(grid, 1, px, py);
+    std::vector<int> cnt_opp = search(grid, 0, px, py);
 
     long long mi_val = -5000 + 5 * depth;
     long long ma_val = 5000 - 5 * depth;
 
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < 3; i++)
     {
         if(cnt_mine[i] || cnt_opp[i])
         {
@@ -111,24 +153,27 @@ long long heuristic(std::vector<std::vector<long long> > grid,long long depth,bo
 // int main()
 // {
 //     std::vector<std::vector<long long>> grid = 
-//     {{1, 1, 2, 1},
-//     {0, 0, 2, 0},
-//     {0, 0, 0, 1}, 
-//     {2, 0, 2, 2}};
+//     {{1, 1, 2, 1, 0, 0},
+//     {0, 0, 2, 0, 0, 0},
+//     {0, 0, 0, 1, 0, 0}, 
+//     {2, 0, 2, 2, 0, 0},
+//     {0, 0, 0, 1, 0, 0}, 
+//     {2, 0, 2, 2, 0, 0},};
 
-//     n = 4, m = 4, mine = 1, opp = 2;
-//     std::vector<std::vector<std::pair<int, int>>> res = search(grid, 1, 1, 1);
+//     /*
+//         1 -> 1, 1,
+//         2 -> 1, 1, 1,
+//         3 -> 1, 1, 1
+//         4 -> 1, 1,
+//     */
 
-//     std::cout<<res.size()<<"\n";
+//     n = 6, m = 6, mine = 1, opp = 2;
+//     std::vector<int> res = search(grid, false, 1, 1);
 
 //     for(int i = 0; i < 4; i++)
 //     {
-//         std::cout<<i<<":\n";
-//         for(auto e: res[i])
-//         std::cout<<e.first<<' '<<e.second<<"\n";
-    
-//         std::cout<<"\n";
-//     } 
+//         std::cout<<i<<": "<<res[i]<<"\n";
+//     }
 
 //     return 0;
 // }
