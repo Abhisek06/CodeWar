@@ -12,8 +12,7 @@ struct pos{
 
 long long n,m;
 char curr;
-long long opp;
-long long mine;
+int opp, mine;
 long long dx[8]={1,-1,0,0,1,1,-1,-1};
 long long dy[8]={0,0,1,-1,1,-1,1,-1};
 
@@ -44,7 +43,7 @@ long long evaluate(std::vector<std::vector<long long>> &grid,long long depth){
 long long minimax(std::vector<std::vector<long long> >grid,long long depth,bool flag,long long px,long long py,long long alpha,long long beta){
 	if(depth>3)
 	{
-		return heuristic(grid, depth, flag, px, py, alpha, beta);
+		return heuristic(grid, depth, flag, px, py);
 	}
 
 	long long curr=evaluate(grid,depth);
@@ -52,6 +51,8 @@ long long minimax(std::vector<std::vector<long long> >grid,long long depth,bool 
 	std::pair<long long, long long> p=findnext(px,py,grid);
 	if(p.first==-1 || p.second==-1)return 0;
 	if(!is_move_possible(grid))return 0;
+
+
 	long long startrow=p.first,startcol=p.second;
 	if(flag){
 		long long maxi=-inf;
